@@ -1,0 +1,34 @@
+name: Daily Automated Commit
+
+on:
+  schedule:
+    - cron: '15 15 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  daily-commit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Update daily activity
+        env:
+          COMMIT_NAME: "kaveeshasasi"
+          COMMIT_EMAIL: "kaveeshasasi@gmail.com"
+        run: |
+          git config user.name "$COMMIT_NAME"
+          git config user.email "$COMMIT_EMAIL"
+          export TZ=Asia/Colombo
+          today=$(date +%F)
+          touch activity.log
+          if ! grep -Fxq "$today" activity.log; then
+            echo "$today" >> activity.log
+            git add activity.log
+            git commit -m "Automated daily activity: $today"
+            git push
+          fi
